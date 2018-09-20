@@ -1,10 +1,18 @@
 extern crate rand;
 
-use rand::Rng;
+use rand::{Rng, thread_rng};
+use rand::rngs::ThreadRng;
+
+#[derive(Debug)]
+struct Pos {
+    column: usize,
+    row:    usize,
+}
 
 struct Game {
     board: Vec<Vec<Option<u8>>>,
     score: u32,
+    rng:   ThreadRng,
 }
 
 // TODO: Make this more generic
@@ -18,18 +26,19 @@ fn print_row(row: &Vec<Option<u8>>) {
         print!("{}", i);
         print!(" | ");
     }
-    println!(" |");
+    print!("\n");
 }
 
 impl Game {
 
-    fn new() -> Game {
+    fn new(rng: ThreadRng) -> Game {
         Game {
             board: vec![vec![None,None,None,None],
                         vec![None,None,None,None],
                         vec![None,None,None,None],
                         vec![None,None,None,None]],
-            score: 0
+            score: 0,
+            rng: rng,
         }
     }
 
@@ -54,10 +63,45 @@ impl Game {
         }
         return total;
     }
+
+    fn empty_tiles(&self) -> Vec<Pos> {
+        let mut x = 0;
+        let mut y = 0;
+        let mut result = Vec::new();
+
+        for i in self.board.iter() {
+            x = 0;
+            for j in i.iter() {
+                match *j {
+                    Some(_) => (),
+                    None    => result.push(Pos { column: x,
+                                                 row: y }),
+                }
+                x += 1;
+            }
+            y += 1;
+        }
+        result
+    }
+
+    fn update(&mut self, pos: &Pos, val: u8) {
+        self.board[pos.row][pos.column] = Some(val);
+    }
+
+    fn add_tile(&mut self) {
+        let options = self.empty_tiles();
+        match self.rng.choose(&options) {
+            Some(pos) => self.update(pos, 1),
+            // TODO: this shouldn't be a panic
+            None => panic!("no empty tiles!"),
+        }
+    }
 }
 
 fn main() {
-    let game = Game::new();
+    let mut game = Game::new(thread_rng());
+    game.add_tile();
+    game.add_tile();
+    game.add_tile();
     game.print();
-    println!("{}", game.count_empty());
 }

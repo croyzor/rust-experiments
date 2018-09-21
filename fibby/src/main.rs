@@ -39,7 +39,7 @@ impl Game {
                         vec![None,None,None,None]],
             score: 0,
             rng: rng,
-        }
+        }.add_tile()
     }
 
     fn print(&self) {
@@ -84,11 +84,12 @@ impl Game {
         result
     }
 
-    fn update(&mut self, pos: &Pos, val: u8) {
+    fn update(mut self, pos: &Pos, val: u8) -> Self{
         self.board[pos.row][pos.column] = Some(val);
+        self
     }
 
-    fn add_tile(&mut self) {
+    fn add_tile(mut self) -> Self {
         let options = self.empty_tiles();
         match self.rng.choose(&options) {
             Some(pos) => self.update(pos, 1),
@@ -100,8 +101,8 @@ impl Game {
 
 fn main() {
     let mut game = Game::new(thread_rng());
-    game.add_tile();
-    game.add_tile();
-    game.add_tile();
-    game.print();
+    game.add_tile()
+        .add_tile()
+        .add_tile()
+        .print();
 }

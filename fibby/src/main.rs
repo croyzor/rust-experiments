@@ -51,19 +51,6 @@ impl Game {
         }
     }
 
-    fn count_empty(&self) -> u8 {
-        let mut total: u8 = 0;
-        for row in self.board.iter() {
-            for elem in row.iter() {
-                match *elem {
-                    Some(_) => total += 1,
-                    None    => ()
-                };
-            }
-        }
-        return total;
-    }
-
     fn empty_tiles(&self) -> Vec<Pos> {
         let mut x = 0;
         let mut y = 0;

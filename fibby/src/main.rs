@@ -52,12 +52,11 @@ impl Game {
     }
 
     fn empty_tiles(&self) -> Vec<Pos> {
-        let mut x = 0;
         let mut y = 0;
         let mut result = Vec::new();
 
         for i in self.board.iter() {
-            x = 0;
+            let mut x = 0;
             for j in i.iter() {
                 match *j {
                     Some(_) => (),
@@ -87,8 +86,8 @@ impl Game {
 }
 
 fn main() {
-    let mut game = Game::new(thread_rng());
-    game.add_tile()
+    Game::new(thread_rng())
+        .add_tile()
         .add_tile()
         .add_tile()
         .print();

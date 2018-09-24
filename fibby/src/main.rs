@@ -15,20 +15,6 @@ struct Game {
     rng:   ThreadRng,
 }
 
-// TODO: Make this more generic
-fn print_row(row: &Vec<Option<u8>>) {
-    let tiles = row.iter().map(|&x| match x {
-        Some(i) => i.to_string(),
-        None => " ".to_string()
-    });
-    print!("| ");
-    for i in tiles {
-        print!("{}", i);
-        print!(" | ");
-    }
-    print!("\n");
-}
-
 impl Game {
 
     fn new(rng: ThreadRng) -> Game {
@@ -46,7 +32,7 @@ impl Game {
         println!("+---+---+---+---+");
         for i in self.board.iter() {
             // TODO: add padding for aligning with double-digit numbers
-            print_row(i);
+            Game::print_row(i);
             println!("+---+---+---+---+");
         }
     }
@@ -70,6 +56,19 @@ impl Game {
         result
     }
 
+    fn count_tiles(&self) -> u8 {
+        let mut total = 0;
+        for i in self.board.iter() {
+            for j in i.iter() {
+                match *j {
+                    Some(_) => total += 1,
+                    None => (),
+                }
+            }
+        }
+        total
+    }
+
     fn update(mut self, pos: &Pos, val: u8) -> Self{
         self.board[pos.row][pos.column] = Some(val);
         self
@@ -83,6 +82,25 @@ impl Game {
             None => panic!("no empty tiles!"),
         }
     }
+
+    // TODO: Make this more generic
+    fn print_row(row: &Vec<Option<u8>>) {
+        let tiles = row.iter().map(|&x| match x {
+            Some(i) => i.to_string(),
+            None => " ".to_string()
+        });
+        print!("| ");
+        for i in tiles {
+            print!("{}", i);
+            print!(" | ");
+        }
+        print!("\n");
+    }
+
+    fn shift_row_left(row: &mut Vec<Option<u8>>) -> Vec<Option<u8>> {
+        unimplemented!();
+    }
+
 }
 
 fn main() {
@@ -91,4 +109,22 @@ fn main() {
         .add_tile()
         .add_tile()
         .print();
+}
+
+#[cfg(test)]
+mod tests {
+    use rand::thread_rng;
+    use Game;
+
+    #[test]
+    fn initial_board_has_one_tile() {
+        assert_eq!(1, Game::new(thread_rng()).count_tiles());
+    }
+
+    #[test]
+    fn shift_left_adds_and_shifts() {
+        let mut row = vec!(None, Some(1), Some(1), None);
+        assert_eq!(Game::shift_row_left(&mut row),
+                   vec!(Some(2), None, None, None));
+    }
 }

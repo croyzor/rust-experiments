@@ -98,9 +98,18 @@ impl Game {
     }
 
     fn shift_row_left(row: &mut Vec<Option<u8>>) -> Vec<Option<u8>> {
-        unimplemented!();
+        let length_orig = row.len();
+        row.retain(|a| a.is_some());
+        let length_new = row.len();
+        for i in 0..(length_orig - length_new) {
+            row.push(None);
+        }
+        row.to_vec()
     }
 
+    fn shift_add_row_left(row: &mut Vec<Option<u8>>) -> Vec<Option<u8>> {
+        unimplemented!();
+    }
 }
 
 fn main() {
@@ -122,9 +131,80 @@ mod tests {
     }
 
     #[test]
-    fn shift_left_adds_and_shifts() {
-        let mut row = vec!(None, Some(1), Some(1), None);
-        assert_eq!(Game::shift_row_left(&mut row),
-                   vec!(Some(2), None, None, None));
+    fn shift_add1() {
+        let mut row = vec![Some(1), Some(1), None, None];
+        assert_eq!(Game::shift_add_row_left(&mut row), vec![ Some(2), None, None, None ]);
+    }
+    
+    #[test]
+    fn shift_add2() {
+        let mut row = vec![ Some(1), None, Some(1), None ];
+        assert_eq!(Game::shift_add_row_left(&mut row), vec![ Some(2), None, None, None ]);
+    }
+                         
+    #[test]
+    fn shift_add3() {
+        let mut row = vec![ Some(1), None, None, None ] ;
+        assert_eq!(Game::shift_add_row_left(&mut row), vec![ Some(1), None, None, None ]);
+    }
+    
+    #[test]
+    fn shift_add4() {
+        let mut row = vec![ None, None, Some(1), None ] ;
+        assert_eq!(Game::shift_add_row_left(&mut row), vec![ Some(1), None, None, None ]);
+    }
+    
+    #[test]
+    fn shift_add5() {
+        let mut row = vec![ Some(1), Some(5), None, None ];
+        assert_eq!(Game::shift_add_row_left(&mut row), vec![ Some(1), Some(5), None, None ]);
+    }
+    
+    #[test]
+    fn shift_add6() {
+        let mut row = vec![ Some(5), Some(1), Some(1), None];
+        assert_eq!(Game::shift_add_row_left(&mut row), vec![ Some(5), Some(2), None, None ]);
+    }
+    
+    #[test]
+    fn shift_add7() {
+        let mut row = vec![ Some(1), Some(1), Some(1), Some(1)];
+        assert_eq!(Game::shift_add_row_left(&mut row), vec![ Some(2), Some(2), None, None ]);
+    }
+        
+    #[test]
+    fn shift_add8() {
+        let mut row = vec![ Some(1), Some(1), Some(1), None];
+        assert_eq!(Game::shift_add_row_left(&mut row), vec![ Some(2), Some(1), None, None ]);
+    }
+        
+    #[test]
+    fn shift1() {
+        let mut row = vec! [ Some(1), Some(1), None, None ];
+        assert_eq!(Game::shift_row_left(&mut row), vec![ Some(1), Some(1), None, None ]);
+    }
+                
+    #[test]
+    fn shift2() {
+        let mut row = vec! [ Some(1), None, Some(1), None];
+        assert_eq!(Game::shift_row_left(&mut row), vec![ Some(1), Some(1), None, None ]);
+    }
+                    
+    #[test]
+    fn shift3() {
+        let mut row = vec! [ Some(1), None, None, None ];
+        assert_eq!(Game::shift_row_left(&mut row), vec![ Some(1), None, None, None ]);
+    }
+                    
+    #[test]
+    fn shift4() {
+        let mut row = vec! [ None, None, Some(1), None ];
+        assert_eq!(Game::shift_row_left(&mut row), vec![ Some(1), None, None, None ]);
+    }
+                    
+    #[test]
+    fn shift5() {
+        let mut row = vec! [ Some(1), Some(2), None, None ];
+        assert_eq!(Game::shift_row_left(&mut row), vec![ Some(1), Some(2), None, None ]);
     }
 }

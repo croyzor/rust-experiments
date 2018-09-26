@@ -108,7 +108,17 @@ impl Game {
     }
 
     fn shift_add_row_left(row: &mut Vec<Option<u8>>) -> Vec<Option<u8>> {
-        unimplemented!();
+        let mut shifted_row = Game::shift_row_left(row);
+        if let None = shifted_row[0] {
+            return shifted_row;
+        }
+        else if shifted_row[0] == shifted_row[1] {
+            // TODO: there's definitely a better way to do this
+            shifted_row[0] = Some(shifted_row[0].unwrap() + shifted_row[1].unwrap());
+            shifted_row.remove(1);
+            shifted_row.push(None);
+        } // TODO: add recursive call for the rest of the row
+        shifted_row
     }
 }
 

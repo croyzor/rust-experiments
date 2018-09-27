@@ -189,59 +189,26 @@ mod tests {
     }
 
     #[test]
-    fn shift_add1() {
-        let mut row = vec![Some(1), Some(1), None, None];
-        assert_eq!(Game::shift_add_row_left(&mut row),
-                   vec![ Some(2), None, None, None ]);
-    }
-    
-    #[test]
-    fn shift_add2() {
-        let mut row = vec![ Some(1), None, Some(1), None ];
-        assert_eq!(Game::shift_add_row_left(&mut row),
-                   vec![ Some(2), None, None, None ]);
-    }
-                         
-    #[test]
-    fn shift_add3() {
-        let mut row = vec![ Some(1), None, None, None ] ;
-        assert_eq!(Game::shift_add_row_left(&mut row),
-                   vec![ Some(1), None, None, None ]);
-    }
-    
-    #[test]
-    fn shift_add4() {
-        let mut row = vec![ None, None, Some(1), None ] ;
-        assert_eq!(Game::shift_add_row_left(&mut row),
-                   vec![ Some(1), None, None, None ]);
-    }
-    
-    #[test]
-    fn shift_add5() {
-        let mut row = vec![ Some(1), Some(5), None, None ];
-        assert_eq!(Game::shift_add_row_left(&mut row),
-                   vec![ Some(1), Some(5), None, None ]);
-    }
-    
-    #[test]
-    fn shift_add6() {
-        let mut row = vec![ Some(5), Some(1), Some(1), None];
-        assert_eq!(Game::shift_add_row_left(&mut row),
-                   vec![ Some(5), Some(2), None, None ]);
-    }
-    
-    #[test]
-    fn shift_add7() {
-        let mut row = vec![ Some(1), Some(1), Some(1), Some(1)];
-        assert_eq!(Game::shift_add_row_left(&mut row),
-                   vec![ Some(2), Some(2), None, None ]);
-    }
-        
-    #[test]
-    fn shift_add8() {
-        let mut row = vec![ Some(1), Some(1), Some(1), None];
-        assert_eq!(Game::shift_add_row_left(&mut row),
-                   vec![ Some(2), Some(1), None, None ]);
+    fn shift_left() {
+        let mut game = Game::new(thread_rng());
+        game.board = vec!(vec![Some(1), Some(1), None, None],
+                          vec![Some(1), None, Some(1), None ],
+                          vec![ Some(1), None, None, None ],
+                          vec![ None, None, Some(1), None ],
+                          vec![ Some(1), Some(5), None, None ],
+                          vec![ Some(5), Some(1), Some(1), None],
+                          vec![ Some(1), Some(1), Some(1), Some(1)],
+                          vec![ Some(1), Some(1), Some(1), None]);
+
+        let expected = vec!(vec![ Some(2), None, None, None ],
+                            vec![ Some(2), None, None, None ],
+                            vec![ Some(1), None, None, None ],
+                            vec![ Some(1), None, None, None ],
+                            vec![ Some(1), Some(5), None, None ],
+                            vec![ Some(5), Some(2), None, None ],
+                            vec![ Some(2), Some(2), None, None ],
+                            vec![ Some(2), Some(1), None, None ]);
+        assert_eq!(expected, game.shift(Dir::Left).board);
     }
         
     #[test]

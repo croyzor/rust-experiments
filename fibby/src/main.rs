@@ -134,6 +134,15 @@ impl Game {
         shifted_row
     }
 
+    // TODO: make this generic
+    fn transpose(mat: &Vec<Vec<Option<u8>>>) -> Vec<Vec<Option<u8>>> {
+        let mut result = Vec::new();
+        for i in 0..mat[0].len() {
+            result.push(mat.iter().map(|a| a[i]).collect());
+        }
+        result
+    }
+
     fn shift_left(mut self) -> Self {
         // Apply shift_add_row_left to each row
         self.board =
@@ -259,5 +268,16 @@ mod tests {
                             vec!(None, None, None, None),
                             vec!(Some(1), Some(2), Some(1), Some(2)));
         assert_eq!(expected, game.shift(Dir::Right).board);
+    }
+
+    #[test]
+    fn transpose() {
+        let expected = vec!(vec!(Some(1), Some(2), Some(3), Some(4)),
+                            vec!(Some(5), Some(6), Some(7), Some(8)));
+        assert_eq!(expected,
+                   Game::transpose(&vec!(vec!(Some(1), Some(5)),
+                                         vec!(Some(2), Some(6)),
+                                         vec!(Some(3), Some(7)),
+                                         vec!(Some(4), Some(8)))));
     }
 }

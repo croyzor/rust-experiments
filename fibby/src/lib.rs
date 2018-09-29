@@ -36,11 +36,12 @@ impl Game {
     }
 
     // Move board tiles in a given direction
-    pub fn shift(mut self, dir: Dir) -> Self {
+    pub fn shift(self, dir: Dir) -> Self {
         match dir {
             Dir::Left  => self.shift_left(),
             Dir::Right => self.shift_right(),
-            _ => unimplemented!(),
+            Dir::Up    => self.shift_up(),
+            Dir::Down  => self.shift_down(),
         }.add_tile()
     }
 
@@ -70,19 +71,6 @@ impl Game {
             y += 1;
         }
         result
-    }
-
-    fn count_tiles(&self) -> u8 {
-        let mut total = 0;
-        for i in self.board.iter() {
-            for j in i.iter() {
-                match *j {
-                    Some(_) => total += 1,
-                    None => (),
-                }
-            }
-        }
-        total
     }
 
     fn update(mut self, pos: &Pos, val: u8) -> Self{
@@ -117,7 +105,7 @@ impl Game {
         let length_orig = row.len();
         row.retain(|a| a.is_some());
         let length_new = row.len();
-        for i in 0..(length_orig - length_new) {
+        for _ in 0..(length_orig - length_new) {
             row.push(None);
         }
         row.to_vec()
@@ -176,6 +164,21 @@ impl Game {
             .collect();
         self
     }
+
+    fn shift_up(mut self) -> Self {
+        self.board = Game::transpose(&self.board);
+        let mut s = self.shift_left();
+        s.board = Game::transpose(&s.board);
+        s
+    }
+
+    fn shift_down(mut self) -> Self {
+        self.board = Game::transpose(&self.board);
+        let mut s = self.shift_right();
+        s.board = Game::transpose(&s.board);
+        s
+    }
+
 }
 
 #[cfg(test)]
@@ -185,7 +188,13 @@ mod tests {
 
     #[test]
     fn initial_board_has_one_tile() {
-        assert_eq!(1, Game::new(thread_rng()).count_tiles());
+        let tile_count = Game::new(thread_rng())
+            .board
+            .iter()
+            .flatten()
+            .filter(|a| a.is_some())
+            .count();
+        assert_eq!(1, tile_count);
     }
 
     #[test]
@@ -270,5 +279,19 @@ mod tests {
                                          vec!(Some(2), Some(6)),
                                          vec!(Some(3), Some(7)),
                                          vec!(Some(4), Some(8)))));
+    }
+
+    #[test]
+    fn shift_up() {
+        let mut game = Game::new(thread_rng());
+        game.board = vec!(vec!(Some(1), Some(1), None, None),
+                          vec!(None, None, Some(1), None),
+                          vec!(Some(1), None, None, Some(1)),
+                          vec!(Some(1), Some(1), None, Some(1)));
+        let expected = vec!(vec!(Some(2), Some(2), Some(1), Some(2)),
+                            vec!(Some(1), None, None, None),
+                            vec!(None, None, None, None),
+                            vec!(None, None, None, None));
+        assert_eq!(expected, game.shift_up().board);
     }
 }

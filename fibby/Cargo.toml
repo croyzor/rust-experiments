@@ -5,3 +5,4 @@ authors = ["Craig Roy <Craigr63@gmail.com>"]
 
 [dependencies]
 rand = "*"
+ggez = "*"

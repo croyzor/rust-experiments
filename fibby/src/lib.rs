@@ -54,6 +54,10 @@ impl Game {
         }
     }
 
+    pub fn get_board(&self) -> &Vec<Vec<Option<u8>>> {
+        &self.board
+    }
+
     fn empty_tiles(&self) -> Vec<Pos> {
         let mut y = 0;
         let mut result = Vec::new();

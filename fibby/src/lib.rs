@@ -61,7 +61,7 @@ impl Game {
         for i in self.board.iter() {
             let mut x = 0;
             for j in i.iter() {
-                match *j {
+                match j {
                     Some(_) => (),
                     None    => result.push(Pos { column: x,
                                                  row: y }),

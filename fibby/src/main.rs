@@ -34,6 +34,18 @@ impl event::EventHandler for State {
                                         w: 100.0,
                                         h: 100.0,
                                     })?;
+                /*
+                let font = graphics::Font::new(ctx,
+                                               "/DejaVuSerif.ttf",
+                                               48)?;
+                 */
+                let font = graphics::Font::default_font()?;
+                let text = graphics::Text::new(ctx, "a", &font)?;
+                graphics::draw(ctx,
+                               &text,
+                               Point2::new(100.0 * j as f32,
+                                           100.0 * i as f32),
+                               0.0)?;
             }
         }
         graphics::present(ctx);

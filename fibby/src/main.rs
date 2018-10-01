@@ -24,21 +24,17 @@ impl event::EventHandler for State {
 
     fn draw(&mut self, ctx: &mut Context) -> GameResult<()> {
         graphics::clear(ctx);
-        let mut x = 0.0;
-        for i in self.game.get_board().iter() {
-            let mut y = 0.0;
-            for _ in i {
+        for (i, row) in self.game.get_board().iter().enumerate() {
+            for (j, elem) in row.iter().enumerate() {
                 graphics::rectangle(ctx,
                                     DrawMode::Fill,
                                     Rect {
-                                        x: x,
-                                        y: y,
-                                        w: 50.0,
-                                        h: 50.0,
+                                        x: 100.0 * j as f32,
+                                        y: 100.0 * i as f32,
+                                        w: 100.0,
+                                        h: 100.0,
                                     })?;
-                x += 50.0;
             }
-            y += 50.0;
         }
         graphics::present(ctx);
         Ok(())

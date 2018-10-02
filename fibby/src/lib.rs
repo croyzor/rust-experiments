@@ -9,6 +9,8 @@ struct Pos {
     row:    usize,
 }
 
+// TODO: eliminate need for cloning game
+#[derive(Clone)]
 pub struct Game {
     board: Vec<Vec<Option<u8>>>,
     score: u32,

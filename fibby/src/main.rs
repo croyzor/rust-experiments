@@ -4,6 +4,7 @@ extern crate fibby;
 
 use rand::thread_rng;
 use ggez::*;
+use ggez::event::{Keycode, Mod};
 use ggez::graphics::{DrawMode, Point2, Rect};
 use fibby::{Dir,Game};
 
@@ -27,20 +28,21 @@ impl event::EventHandler for State {
         for (i, row) in self.game.get_board().iter().enumerate() {
             for (j, elem) in row.iter().enumerate() {
                 graphics::rectangle(ctx,
-                                    DrawMode::Fill,
+                                    DrawMode::Line(8.0),
                                     Rect {
                                         x: 100.0 * j as f32,
                                         y: 100.0 * i as f32,
                                         w: 100.0,
                                         h: 100.0,
                                     })?;
-                /*
                 let font = graphics::Font::new(ctx,
                                                "/DejaVuSerif.ttf",
                                                48)?;
-                 */
-                let font = graphics::Font::default_font()?;
-                let text = graphics::Text::new(ctx, "a", &font)?;
+                let num = match elem {
+                    None => "".to_string(),
+                    Some(i) => i.to_string(),
+                };
+                let text = graphics::Text::new(ctx, &num, &font)?;
                 graphics::draw(ctx,
                                &text,
                                Point2::new(100.0 * j as f32,
@@ -50,6 +52,18 @@ impl event::EventHandler for State {
         }
         graphics::present(ctx);
         Ok(())
+    }
+
+    fn key_down_event(&mut self, ctx: &mut Context, keycode: Keycode,
+                      keymod: Mod, repeat: bool) {
+        let gg = self.game.clone();
+        self.game = match keycode {
+            Keycode::Right => gg.shift(Dir::Right),
+            Keycode::Left  => gg.shift(Dir::Left),
+            Keycode::Up    => gg.shift(Dir::Up),
+            Keycode::Down  => gg.shift(Dir::Down),
+            _     => gg,
+        };
     }
 }
 

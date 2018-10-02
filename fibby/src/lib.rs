@@ -9,6 +9,8 @@ struct Pos {
     row:    usize,
 }
 
+// TODO: eliminate need for cloning game
+#[derive(Clone)]
 pub struct Game {
     board: Vec<Vec<Option<u8>>>,
     score: u32,
@@ -54,6 +56,10 @@ impl Game {
         }
     }
 
+    pub fn get_board(&self) -> &Vec<Vec<Option<u8>>> {
+        &self.board
+    }
+
     fn empty_tiles(&self) -> Vec<Pos> {
         let mut y = 0;
         let mut result = Vec::new();
@@ -61,7 +67,7 @@ impl Game {
         for i in self.board.iter() {
             let mut x = 0;
             for j in i.iter() {
-                match *j {
+                match j {
                     Some(_) => (),
                     None    => result.push(Pos { column: x,
                                                  row: y }),

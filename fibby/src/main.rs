@@ -5,7 +5,7 @@ extern crate fibby;
 use rand::thread_rng;
 use ggez::*;
 use ggez::event::{Keycode, Mod};
-use ggez::graphics::{DrawMode, Point2, Rect};
+use ggez::graphics::{DrawMode, Point2, Rect, Color};
 use fibby::{Dir,Game};
 
 struct State {
@@ -27,6 +27,7 @@ impl event::EventHandler for State {
         graphics::clear(ctx);
         for (i, row) in self.game.get_board().iter().enumerate() {
             for (j, elem) in row.iter().enumerate() {
+                graphics::set_color(ctx, Color::new(1.0, 1.0, 1.0, 1.0));
                 graphics::rectangle(ctx,
                                     DrawMode::Line(8.0),
                                     Rect {
@@ -43,6 +44,14 @@ impl event::EventHandler for State {
                     Some(i) => i.to_string(),
                 };
                 let text = graphics::Text::new(ctx, &num, &font)?;
+
+                graphics::set_color(ctx, match elem {
+                    Some(1) => Color::new(1.0, 0.0, 0.0, 1.0),
+                    Some(2) => Color::new(0.0, 1.0, 0.0, 1.0),
+                    Some(4) => Color::new(0.0, 0.0, 1.0, 1.0),
+                    Some(_) => Color::new(1.0, 1.0, 1.0, 1.0),
+                    None => Color::new(1.0,1.0,1.0,1.0),
+                });
                 graphics::draw(ctx,
                                &text,
                                Point2::new(100.0 * j as f32 + 32.0,

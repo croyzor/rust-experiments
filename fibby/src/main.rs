@@ -45,8 +45,8 @@ impl event::EventHandler for State {
                 let text = graphics::Text::new(ctx, &num, &font)?;
                 graphics::draw(ctx,
                                &text,
-                               Point2::new(100.0 * j as f32,
-                                           100.0 * i as f32),
+                               Point2::new(100.0 * j as f32 + 32.0,
+                                           100.0 * i as f32 + 17.0),
                                0.0)?;
             }
         }

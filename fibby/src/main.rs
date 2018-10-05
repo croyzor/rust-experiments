@@ -77,8 +77,11 @@ impl event::EventHandler for State {
 }
 
 fn main() {
-    let c = conf::Conf::new();
-    let ctx = &mut Context::load_from_conf("2048", "ggez", c).unwrap();
+    let mut c = conf::Conf::new();
+    c.window_setup.title = "144".to_string();
+    c.window_mode.width = 400;
+    c.window_mode.height = 400;
+    let ctx = &mut Context::load_from_conf("144", "croyzor", c).unwrap();
     let state = &mut State::new().unwrap();
     event::run(ctx, state).unwrap();
 }

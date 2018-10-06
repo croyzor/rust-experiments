@@ -60,6 +60,16 @@ impl Game {
         &self.board
     }
 
+    pub fn addable(m: u8, n: u8) -> bool {
+        if m == 1 && n == 1 {
+            true
+        }
+        else {
+            let sum = Game::fib_index(m) - Game::fib_index(n);
+            sum.abs() == 1
+        }
+    }
+
     fn empty_tiles(&self) -> Vec<Pos> {
         let mut y = 0;
         let mut result = Vec::new();
@@ -122,12 +132,15 @@ impl Game {
         if let None = shifted_row[0] {
             return shifted_row;
         }
-        else if shifted_row[0] == shifted_row[1] {
-            // TODO: there's definitely a better way to do this
-            shifted_row[0] = Some(shifted_row[0].unwrap() +
-                                  shifted_row[1].unwrap());
-            shifted_row.remove(1);
-            shifted_row.push(None);
+        else if shifted_row[1].is_some() {
+            if Game::addable(shifted_row[0].unwrap(),
+                             shifted_row[1].unwrap()) {
+                // TODO: there's definitely a better way to do this
+                shifted_row[0] = Some(shifted_row[0].unwrap() +
+                                      shifted_row[1].unwrap());
+                shifted_row.remove(1);
+                shifted_row.push(None);
+            }
         }
         if shifted_row.len() >= 3 {
             // Call this function on the rest of the row
@@ -185,6 +198,23 @@ impl Game {
         s
     }
 
+    // Hard coding fibonacci numbers - there's go to be a better way to do this?
+    fn fib_index(n: u8) -> i8 {
+        match n {
+            1 => 1,
+            2 => 2,
+            3 => 3,
+            5 => 4,
+            8 => 5,
+            13 => 6,
+            21 => 7,
+            34 => 8,
+            55 => 9,
+            89 => 10,
+            144 => 11,
+            _ => panic!("Fibonacci element to large!"),
+        }
+    }
 }
 
 #[cfg(test)]
@@ -272,7 +302,7 @@ mod tests {
         let expected = vec!(vec!(None, None, None, Some(2)),
                             vec!(None, None, None, Some(1)),
                             vec!(None, None, None, None),
-                            vec!(Some(1), Some(2), Some(1), Some(2)));
+                            vec!(None, None, Some(3), Some(3)));
         assert_eq!(expected, game.shift_right().board);
     }
 
@@ -299,5 +329,31 @@ mod tests {
                             vec!(None, None, None, None),
                             vec!(None, None, None, None));
         assert_eq!(expected, game.shift_up().board);
+    }
+
+    // Fibonacci sequence (only going as far as 144)
+    pub fn fib(n: u8) -> u8 {
+        match n {
+            0 => 1,
+            1 => 1,
+            _ => fib(n - 1) + fib(n - 2),
+        }
+    }
+
+    #[test]
+    fn fib_test() {
+        for i in 1..11 {
+            assert_eq!(i, Game::fib_index(fib(i as u8)));
+        }
+    }
+
+    #[test]
+    fn add_test() {
+        assert!(Game::addable(1, 1));
+        assert!(Game::addable(1, 2));
+        assert!(Game::addable(2, 1));
+        assert!(Game::addable(89, 55));
+        assert!(!Game::addable(89, 89));
+        assert!(!Game::addable(3, 1));
     }
 }

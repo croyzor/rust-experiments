@@ -18,6 +18,55 @@ impl State {
     }
 }
 
+// Helper function for rendering a tile
+fn draw_tile(ctx: &mut Context, data: &Option<u8>, i: usize, j: usize) -> GameResult<()> {
+    let fontsize = match data {
+        Some(144) => 36,
+        _ => 48,
+    };
+
+    let font = graphics::Font::new(ctx,
+                                   "/DejaVuSerif.ttf",
+                                   fontsize)?;
+    let num = match data {
+        None => "".to_string(),
+        Some(i) => i.to_string(),
+    };
+    let text = graphics::Text::new(ctx, &num, &font)?;
+
+    graphics::set_color(ctx, match data {
+        Some(1) => Color::from_rgb(78, 205, 196),
+        Some(2) => Color::from_rgb(209, 242, 165),
+        Some(3) => Color::from_rgb(249, 150, 180),
+        Some(5) => Color::from_rgb(199, 244, 100),
+        Some(8) => Color::from_rgb(255, 196, 140),
+        Some(13) => Color::from_rgb(255, 159, 128),
+        Some(21) => Color::from_rgb(245, 105, 145),
+        Some(34) => Color::from_rgb(196, 77, 88),
+        Some(_) => Color::from_rgb(255, 107, 107),
+        None => Color::new(1.0,1.0,1.0,1.0),
+    })?;
+
+    let x_offset = match num.len() {
+        1 => 32.0,
+        2 => 12.0,
+        3 => 8.0,
+        _ => 0.0,
+    };
+
+    let y_offset = match num.len() {
+        3 => 23.0,
+        _ => 17.0,
+    };
+
+    graphics::draw(ctx,
+                   &text,
+                   Point2::new(100.0 * j as f32 + x_offset,
+                               100.0 * i as f32 + y_offset),
+                   0.0)?;
+    Ok(())
+}
+
 impl event::EventHandler for State {
     fn update(&mut self, _ctx: &mut Context) -> GameResult<()> {
         Ok(())
@@ -25,6 +74,8 @@ impl event::EventHandler for State {
 
     fn draw(&mut self, ctx: &mut Context) -> GameResult<()> {
         graphics::clear(ctx);
+        graphics::set_background_color(ctx,
+                                       Color::from_rgb(85, 98, 112));
         for (i, row) in self.game.get_board().iter().enumerate() {
             for (j, elem) in row.iter().enumerate() {
                 graphics::set_color(ctx, Color::new(1.0, 1.0, 1.0, 1.0))?;
@@ -36,27 +87,7 @@ impl event::EventHandler for State {
                                         w: 100.0,
                                         h: 100.0,
                                     })?;
-                let font = graphics::Font::new(ctx,
-                                               "/DejaVuSerif.ttf",
-                                               48)?;
-                let num = match elem {
-                    None => "".to_string(),
-                    Some(i) => i.to_string(),
-                };
-                let text = graphics::Text::new(ctx, &num, &font)?;
-
-                graphics::set_color(ctx, match elem {
-                    Some(1) => Color::new(1.0, 0.0, 0.0, 1.0),
-                    Some(2) => Color::new(0.0, 1.0, 0.0, 1.0),
-                    Some(4) => Color::new(0.0, 0.0, 1.0, 1.0),
-                    Some(_) => Color::new(1.0, 1.0, 1.0, 1.0),
-                    None => Color::new(1.0,1.0,1.0,1.0),
-                })?;
-                graphics::draw(ctx,
-                               &text,
-                               Point2::new(100.0 * j as f32 + 32.0,
-                                           100.0 * i as f32 + 17.0),
-                               0.0)?;
+                draw_tile(ctx, &elem, i, j)?;
             }
         }
         graphics::present(ctx);

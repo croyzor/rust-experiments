@@ -41,8 +41,8 @@ fn draw_tile(ctx: &mut Context, data: &Option<u8>, i: usize, j: usize) -> GameRe
         Some(5) => Color::from_rgb(199, 244, 100),
         Some(8) => Color::from_rgb(255, 196, 140),
         Some(13) => Color::from_rgb(255, 159, 128),
-        Some(21) => Color::from_rgb(245, 105, 145),
-        Some(34) => Color::from_rgb(196, 77, 88),
+        Some(21) => Color::from_rgb(235, 120, 108),
+        Some(34) => Color::from_rgb(245, 105, 145),
         Some(_) => Color::from_rgb(255, 107, 107),
         None => Color::new(1.0,1.0,1.0,1.0),
     })?;
@@ -68,8 +68,14 @@ fn draw_tile(ctx: &mut Context, data: &Option<u8>, i: usize, j: usize) -> GameRe
 }
 
 impl event::EventHandler for State {
-    fn update(&mut self, _ctx: &mut Context) -> GameResult<()> {
-        Ok(())
+    fn update(&mut self, ctx: &mut Context) -> GameResult<()> {
+        if !timer::check_update_time(ctx, 30) {
+            timer::yield_now();
+            Ok(())
+        }
+        else {
+            Ok(())
+        }
     }
 
     fn draw(&mut self, ctx: &mut Context) -> GameResult<()> {
@@ -110,8 +116,9 @@ impl event::EventHandler for State {
 fn main() {
     let mut c = conf::Conf::new();
     c.window_setup.title = "144".to_string();
-    c.window_mode.width = 400;
-    c.window_mode.height = 400;
+    c.window_mode.width = 500;
+    c.window_mode.height = 300;
+    c.window_mode.vsync = true;
     let ctx = &mut Context::load_from_conf("144", "croyzor", c).unwrap();
     let state = &mut State::new().unwrap();
     event::run(ctx, state).unwrap();

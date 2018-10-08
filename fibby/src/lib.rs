@@ -28,10 +28,9 @@ impl Game {
 
     pub fn new(rng: ThreadRng) -> Game {
         Game {
-            board: vec![vec![None,None,None,None],
-                        vec![None,None,None,None],
-                        vec![None,None,None,None],
-                        vec![None,None,None,None]],
+            board: vec![vec![None,None,None,None,None],
+                        vec![None,None,None,None,None],
+                        vec![None,None,None,None,None]],
             score: 0,
             rng: rng,
         }.add_tile()

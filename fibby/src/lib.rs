@@ -17,6 +17,11 @@ pub struct Game {
     rng:   ThreadRng,
 }
 
+pub enum EndGame {
+    Win,
+    Lose,
+}
+
 pub enum Dir {
     Left,
     Right,
@@ -37,7 +42,7 @@ impl Game {
     }
 
     // Move board tiles in a given direction
-    pub fn shift(self, dir: Dir) -> Self {
+    pub fn shift(self, dir: &Dir) -> Self {
         match dir {
             Dir::Left  => self.shift_left(),
             Dir::Right => self.shift_right(),
@@ -67,6 +72,34 @@ impl Game {
             let sum = Game::fib_index(m) - Game::fib_index(n);
             sum.abs() == 1
         }
+    }
+
+    pub fn endgame(&self) -> Option<EndGame> {
+        if self.game_won() {
+            Some(EndGame::Win)
+        }
+        else if self.game_over() {
+            Some(EndGame::Lose)
+        }
+        else {
+            None
+        }
+    }
+
+    fn game_over(&self) -> bool {
+        self.empty_tiles().len() == 0
+    }
+
+    fn game_won(&self) -> bool {
+        let board = self.get_board();
+        board
+            .iter()
+            .flatten()
+            .filter(|tile| match tile {
+                Some(n) => n >= &144,
+                None    => false,
+            })
+            .count() > 0
     }
 
     fn empty_tiles(&self) -> Vec<Pos> {

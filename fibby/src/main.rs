@@ -6,15 +6,35 @@ use rand::thread_rng;
 use ggez::*;
 use ggez::event::{Keycode, Mod};
 use ggez::graphics::{DrawMode, Point2, Rect, Color};
-use fibby::{Dir,Game};
+use fibby::{Dir,EndGame,Game};
 
 struct State {
     game: Game,
+    prev_board: Vec<Vec<Option<u8>>>,
+    transition_progress: f32,
+    transition_direction: Dir,
+    endgame: Option<EndGame>,
 }
 
 impl State {
     fn new() -> GameResult<State> {
-        Ok(State { game: Game::new(thread_rng()) })
+        Ok(State {
+            game: Game::new(thread_rng()),
+            prev_board: Vec::new(),
+            transition_progress: 0.0,
+            transition_direction: Dir::Up,
+            endgame: None,
+        })
+    }
+}
+
+fn is_key_valid(keycode: &Keycode) -> bool {
+    match keycode {
+        Keycode::Up    => true,
+        Keycode::Down  => true,
+        Keycode::Left  => true,
+        Keycode::Right => true,
+        _ => false,
     }
 }
 
@@ -69,11 +89,12 @@ fn draw_tile(ctx: &mut Context, data: &Option<u8>, i: usize, j: usize) -> GameRe
 
 impl event::EventHandler for State {
     fn update(&mut self, ctx: &mut Context) -> GameResult<()> {
-        if !timer::check_update_time(ctx, 30) {
-            timer::yield_now();
+        if timer::check_update_time(ctx, 30) {
+            self.transition_progress += 0.03;
             Ok(())
         }
         else {
+            timer::yield_now();
             Ok(())
         }
     }
@@ -97,19 +118,51 @@ impl event::EventHandler for State {
             }
         }
         graphics::present(ctx);
+
+        if self.endgame.is_some() {
+            graphics::set_color(ctx, Color::new(1.0, 1.0, 1.0, 0.5))?;
+            graphics::rectangle(ctx,
+                                DrawMode::Fill,
+                                Rect {
+                                    x: 0.0,
+                                    y: 0.0,
+                                    w: 500.0,
+                                    h: 300.0,
+                                })?;
+            let font = graphics::Font::new(ctx,
+                                           "/DejaVuSerif.ttf",
+                                           72)?;
+            let text = graphics::Text::new(ctx, "GAME OVER", &font)?;
+            
+            graphics::draw(ctx,
+                           &text,
+                           Point2::new(100.0,
+                                       100.0),
+                           0.0)?;
+        }
         Ok(())
     }
 
     fn key_down_event(&mut self, ctx: &mut Context, keycode: Keycode,
                       keymod: Mod, repeat: bool) {
-        let gg = self.game.clone();
-        self.game = match keycode {
-            Keycode::Right => gg.shift(Dir::Right),
-            Keycode::Left  => gg.shift(Dir::Left),
-            Keycode::Up    => gg.shift(Dir::Up),
-            Keycode::Down  => gg.shift(Dir::Down),
-            _     => gg,
+        if !is_key_valid(&keycode) {
+            return
+        }
+
+        let dir = match keycode {
+            Keycode::Right => Dir::Right,
+            Keycode::Left  => Dir::Left,
+            Keycode::Up    => Dir::Up,
+            Keycode::Down  => Dir::Down,
+            _     => panic!("We shouldn't have got here!"),
         };
+
+        let gg = self.game.clone();
+        self.game = gg.shift(&dir);
+
+        self.transition_progress = 0.0;
+        self.transition_direction = dir;
+        self.endgame = self.game.endgame();
     }
 }
 

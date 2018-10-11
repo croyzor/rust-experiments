@@ -87,6 +87,37 @@ fn draw_tile(ctx: &mut Context, data: &Option<u8>, i: usize, j: usize) -> GameRe
     Ok(())
 }
 
+fn draw_game_over(ctx: &mut Context) -> GameResult<()> {
+    graphics::set_color(ctx, Color::new(1.0, 1.0, 1.0, 0.6))?;
+    graphics::rectangle(ctx,
+                        DrawMode::Fill,
+                        Rect {
+                            x: 0.0,
+                            y: 0.0,
+                            w: 500.0,
+                            h: 300.0,
+                        })?;
+
+    let font = graphics::Font::new(ctx,
+                                   "/DejaVuSerif.ttf",
+                                   72)?;
+    let game_text = graphics::Text::new(ctx, "GAME", &font)?;
+    let over_text = graphics::Text::new(ctx, "OVER", &font)?;
+
+    graphics::set_color(ctx, Color::new(1.0, 0.0, 0.0, 1.0))?;
+    graphics::draw(ctx,
+                   &game_text,
+                   Point2::new(100.0,
+                               30.0),
+                   0.0)?;
+    graphics::draw(ctx,
+                   &over_text,
+                   Point2::new(110.0,
+                               135.0),
+                   0.0)?;
+    Ok(())
+}
+
 impl event::EventHandler for State {
     fn update(&mut self, ctx: &mut Context) -> GameResult<()> {
         if timer::check_update_time(ctx, 30) {
@@ -117,29 +148,10 @@ impl event::EventHandler for State {
                 draw_tile(ctx, &elem, i, j)?;
             }
         }
-        graphics::present(ctx);
-
         if self.endgame.is_some() {
-            graphics::set_color(ctx, Color::new(1.0, 1.0, 1.0, 0.5))?;
-            graphics::rectangle(ctx,
-                                DrawMode::Fill,
-                                Rect {
-                                    x: 0.0,
-                                    y: 0.0,
-                                    w: 500.0,
-                                    h: 300.0,
-                                })?;
-            let font = graphics::Font::new(ctx,
-                                           "/DejaVuSerif.ttf",
-                                           72)?;
-            let text = graphics::Text::new(ctx, "GAME OVER", &font)?;
-            
-            graphics::draw(ctx,
-                           &text,
-                           Point2::new(100.0,
-                                       100.0),
-                           0.0)?;
+            draw_game_over(ctx)?;
         }
+        graphics::present(ctx);
         Ok(())
     }
 

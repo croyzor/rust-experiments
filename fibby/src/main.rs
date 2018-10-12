@@ -87,7 +87,7 @@ fn draw_tile(ctx: &mut Context, data: &Option<u8>, i: usize, j: usize) -> GameRe
     Ok(())
 }
 
-fn draw_game_over(ctx: &mut Context) -> GameResult<()> {
+fn render_endgame(ctx: &mut Context, ending: &EndGame) -> GameResult<()> {
     graphics::set_color(ctx, Color::new(1.0, 1.0, 1.0, 0.6))?;
     graphics::rectangle(ctx,
                         DrawMode::Fill,
@@ -101,17 +101,24 @@ fn draw_game_over(ctx: &mut Context) -> GameResult<()> {
     let font = graphics::Font::new(ctx,
                                    "/DejaVuSerif.ttf",
                                    72)?;
-    let game_text = graphics::Text::new(ctx, "GAME", &font)?;
-    let over_text = graphics::Text::new(ctx, "OVER", &font)?;
+    let top_text = graphics::Text::new(ctx, "GAME", &font)?;
+    let bottom_text = match ending {
+        Win  => graphics::Text::new(ctx, "WIN", &font)?,
+        Lose => graphics::Text::new(ctx, "OVER", &font)?,
+    };
 
-    graphics::set_color(ctx, Color::new(1.0, 0.0, 0.0, 1.0))?;
+    match ending {
+        Win  => graphics::set_color(ctx, Color::new(0.0, 1.0, 0.0, 1.0))?,
+        Lose => graphics::set_color(ctx, Color::new(1.0, 0.0, 0.0, 1.0))?,
+    };
+
     graphics::draw(ctx,
-                   &game_text,
+                   &top_text,
                    Point2::new(100.0,
                                30.0),
                    0.0)?;
     graphics::draw(ctx,
-                   &over_text,
+                   &bottom_text,
                    Point2::new(110.0,
                                135.0),
                    0.0)?;
@@ -148,8 +155,8 @@ impl event::EventHandler for State {
                 draw_tile(ctx, &elem, i, j)?;
             }
         }
-        if self.endgame.is_some() {
-            draw_game_over(ctx)?;
+        if let Some(end) = &self.endgame {
+            render_endgame(ctx, end)?;
         }
         graphics::present(ctx);
         Ok(())

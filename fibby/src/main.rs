@@ -87,8 +87,10 @@ fn draw_tile(ctx: &mut Context, data: &Option<u8>, i: usize, j: usize) -> GameRe
     Ok(())
 }
 
-fn render_endgame(ctx: &mut Context, ending: &EndGame) -> GameResult<()> {
-    graphics::set_color(ctx, Color::new(1.0, 1.0, 1.0, 0.6))?;
+fn render_endgame(ctx: &mut Context, ending: &EndGame, transition_progress: f32) -> GameResult<()> {
+    graphics::set_color(ctx,
+                        Color::new(1.0, 1.0, 1.0,
+                                   transition_progress * 0.6))?;
     graphics::rectangle(ctx,
                         DrawMode::Fill,
                         Rect {
@@ -103,13 +105,17 @@ fn render_endgame(ctx: &mut Context, ending: &EndGame) -> GameResult<()> {
                                    72)?;
     let top_text = graphics::Text::new(ctx, "GAME", &font)?;
     let bottom_text = match ending {
-        Win  => graphics::Text::new(ctx, "WIN", &font)?,
-        Lose => graphics::Text::new(ctx, "OVER", &font)?,
+        EndGame::Win  => graphics::Text::new(ctx, " WIN!", &font)?,
+        EndGame::Lose => graphics::Text::new(ctx, "OVER", &font)?,
     };
 
     match ending {
-        Win  => graphics::set_color(ctx, Color::new(0.0, 1.0, 0.0, 1.0))?,
-        Lose => graphics::set_color(ctx, Color::new(1.0, 0.0, 0.0, 1.0))?,
+        EndGame::Win  => graphics::set_color(ctx,
+                                             Color::new(0.8, 0.0, 1.0,
+                                                        transition_progress))?,
+        EndGame::Lose => graphics::set_color(ctx,
+                                             Color::new(1.0, 0.0, 0.0,
+                                                        transition_progress))?,
     };
 
     graphics::draw(ctx,
@@ -128,7 +134,9 @@ fn render_endgame(ctx: &mut Context, ending: &EndGame) -> GameResult<()> {
 impl event::EventHandler for State {
     fn update(&mut self, ctx: &mut Context) -> GameResult<()> {
         if timer::check_update_time(ctx, 30) {
-            self.transition_progress += 0.03;
+            if self.endgame.is_some() && self.transition_progress < 1.0 {
+                self.transition_progress += 0.06;
+            }
             Ok(())
         }
         else {
@@ -156,7 +164,7 @@ impl event::EventHandler for State {
             }
         }
         if let Some(end) = &self.endgame {
-            render_endgame(ctx, end)?;
+            render_endgame(ctx, end, self.transition_progress)?;
         }
         graphics::present(ctx);
         Ok(())

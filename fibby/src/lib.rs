@@ -12,7 +12,7 @@ struct Pos {
 // TODO: eliminate need for cloning game
 #[derive(Clone)]
 pub struct Game {
-    board: Vec<Vec<Option<u8>>>,
+    pub board: Vec<Vec<Option<u8>>>,
     score: u32,
     rng:   ThreadRng,
 }
@@ -130,8 +130,8 @@ impl Game {
         let options = self.empty_tiles();
         match self.rng.choose(&options) {
             Some(pos) => self.update(pos, 1),
-            // TODO: this shouldn't be a panic
-            None => panic!("no empty tiles!"),
+            // Do nothing if the board is full
+            None => self
         }
     }
 
@@ -253,6 +253,7 @@ impl Game {
 mod tests {
     use rand::thread_rng;
     use Game;
+    use Dir;
 
     #[test]
     fn initial_board_has_one_tile() {
@@ -380,12 +381,23 @@ mod tests {
     }
 
     #[test]
-    fn add_test() {
+    fn adding_test() {
         assert!(Game::addable(1, 1));
         assert!(Game::addable(1, 2));
         assert!(Game::addable(2, 1));
         assert!(Game::addable(89, 55));
         assert!(!Game::addable(89, 89));
         assert!(!Game::addable(3, 1));
+    }
+
+    #[test]
+    fn dont_panic_on_full_board() {
+        let mut game = Game::new(thread_rng());
+        game.board = vec!(vec!(Some(1), Some(1)),
+                          vec!(Some(1), Some(1)));
+        game = game.shift(&Dir::Up);
+        game = game.shift(&Dir::Down);
+        game = game.shift(&Dir::Left);
+        game.shift(&Dir::Right);
     }
 }

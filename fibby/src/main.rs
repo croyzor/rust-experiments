@@ -6,15 +6,35 @@ use rand::thread_rng;
 use ggez::*;
 use ggez::event::{Keycode, Mod};
 use ggez::graphics::{DrawMode, Point2, Rect, Color};
-use fibby::{Dir,Game};
+use fibby::{Dir,EndGame,Game};
 
 struct State {
     game: Game,
+    prev_board: Vec<Vec<Option<u8>>>,
+    transition_progress: f32,
+    transition_direction: Dir,
+    endgame: Option<EndGame>,
 }
 
 impl State {
     fn new() -> GameResult<State> {
-        Ok(State { game: Game::new(thread_rng()) })
+        Ok(State {
+            game: Game::new(thread_rng()),
+            prev_board: Vec::new(),
+            transition_progress: 0.0,
+            transition_direction: Dir::Up,
+            endgame: None,
+        })
+    }
+}
+
+fn is_key_valid(keycode: &Keycode) -> bool {
+    match keycode {
+        Keycode::Up    => true,
+        Keycode::Down  => true,
+        Keycode::Left  => true,
+        Keycode::Right => true,
+        _ => false,
     }
 }
 
@@ -67,13 +87,60 @@ fn draw_tile(ctx: &mut Context, data: &Option<u8>, i: usize, j: usize) -> GameRe
     Ok(())
 }
 
+fn render_endgame(ctx: &mut Context, ending: &EndGame, transition_progress: f32) -> GameResult<()> {
+    graphics::set_color(ctx,
+                        Color::new(1.0, 1.0, 1.0,
+                                   transition_progress * 0.6))?;
+    graphics::rectangle(ctx,
+                        DrawMode::Fill,
+                        Rect {
+                            x: 0.0,
+                            y: 0.0,
+                            w: 500.0,
+                            h: 300.0,
+                        })?;
+
+    let font = graphics::Font::new(ctx,
+                                   "/DejaVuSerif.ttf",
+                                   72)?;
+    let top_text = graphics::Text::new(ctx, "GAME", &font)?;
+    let bottom_text = match ending {
+        EndGame::Win  => graphics::Text::new(ctx, " WIN!", &font)?,
+        EndGame::Lose => graphics::Text::new(ctx, "OVER", &font)?,
+    };
+
+    match ending {
+        EndGame::Win  => graphics::set_color(ctx,
+                                             Color::new(0.8, 0.0, 1.0,
+                                                        transition_progress))?,
+        EndGame::Lose => graphics::set_color(ctx,
+                                             Color::new(1.0, 0.0, 0.0,
+                                                        transition_progress))?,
+    };
+
+    graphics::draw(ctx,
+                   &top_text,
+                   Point2::new(100.0,
+                               30.0),
+                   0.0)?;
+    graphics::draw(ctx,
+                   &bottom_text,
+                   Point2::new(110.0,
+                               135.0),
+                   0.0)?;
+    Ok(())
+}
+
 impl event::EventHandler for State {
     fn update(&mut self, ctx: &mut Context) -> GameResult<()> {
-        if !timer::check_update_time(ctx, 30) {
-            timer::yield_now();
+        if timer::check_update_time(ctx, 30) {
+            if self.endgame.is_some() && self.transition_progress < 1.0 {
+                self.transition_progress += 0.06;
+            }
             Ok(())
         }
         else {
+            timer::yield_now();
             Ok(())
         }
     }
@@ -96,20 +163,33 @@ impl event::EventHandler for State {
                 draw_tile(ctx, &elem, i, j)?;
             }
         }
+        if let Some(end) = &self.endgame {
+            render_endgame(ctx, end, self.transition_progress)?;
+        }
         graphics::present(ctx);
         Ok(())
     }
 
     fn key_down_event(&mut self, ctx: &mut Context, keycode: Keycode,
                       keymod: Mod, repeat: bool) {
-        let gg = self.game.clone();
-        self.game = match keycode {
-            Keycode::Right => gg.shift(Dir::Right),
-            Keycode::Left  => gg.shift(Dir::Left),
-            Keycode::Up    => gg.shift(Dir::Up),
-            Keycode::Down  => gg.shift(Dir::Down),
-            _     => gg,
+        if !is_key_valid(&keycode) {
+            return
+        }
+
+        let dir = match keycode {
+            Keycode::Right => Dir::Right,
+            Keycode::Left  => Dir::Left,
+            Keycode::Up    => Dir::Up,
+            Keycode::Down  => Dir::Down,
+            _     => panic!("We shouldn't have got here!"),
         };
+
+        let gg = self.game.clone();
+        self.game = gg.shift(&dir);
+
+        self.transition_progress = 0.0;
+        self.transition_direction = dir;
+        self.endgame = self.game.endgame();
     }
 }
 

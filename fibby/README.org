@@ -1,1 +1,6 @@
-A (future) implementation of 2048 using fibonacci numbers to be just a little bit different
+#+TITLE: 144
+An implementation of 2048 using fibonacci numbers to be just a little bit different.
+
+Probably wont stay 144 forever, because getting to that point is very easy.
+
+[[./assets/screenshot.png]]

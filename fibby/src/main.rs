@@ -12,7 +12,7 @@ struct State {
     game: Game,
     prev_board: Vec<Vec<Option<u8>>>,
     transition_progress: f32,
-    transition_direction: Dir,
+    transitioning: bool,
     endgame: Option<EndGame>,
 }
 
@@ -22,7 +22,7 @@ impl State {
             game: Game::new(thread_rng()),
             prev_board: Vec::new(),
             transition_progress: 0.0,
-            transition_direction: Dir::Up,
+            transitioning: false,
             endgame: None,
         })
     }
@@ -137,12 +137,15 @@ impl event::EventHandler for State {
             if self.endgame.is_some() && self.transition_progress < 1.0 {
                 self.transition_progress += 0.06;
             }
-            Ok(())
+            else if self.transitioning {
+                self.transition_progress += 0.06;
+                self.transitioning = self.transition_progress > 1.0;
+            }
         }
         else {
             timer::yield_now();
-            Ok(())
         }
+        Ok(())
     }
 
     fn draw(&mut self, ctx: &mut Context) -> GameResult<()> {
@@ -188,7 +191,8 @@ impl event::EventHandler for State {
         self.game = gg.shift(&dir);
 
         self.transition_progress = 0.0;
-        self.transition_direction = dir;
+        self.transitioning = true;
+        self.prev_board = self.game.get_board().to_vec();
         self.endgame = self.game.endgame();
     }
 }

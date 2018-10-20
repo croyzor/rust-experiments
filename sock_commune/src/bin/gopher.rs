@@ -1,6 +1,5 @@
 use std::io::prelude::{Read, Write};
-use std::net::*;
-use std::string::*;
+use std::net::TcpStream;
 use sock_commune::parse_uri;
 
 fn print_usage(name: String) {
@@ -33,7 +32,7 @@ fn main() -> std::io::Result<()> {
 #[cfg(test)]
 mod tests {
     use sock_commune::parse_uri;
-    use sock_commune::gopher::*;
+    use sock_commune::gopher::GopherHole;
 
     #[test]
     fn parse_args() {

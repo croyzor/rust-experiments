@@ -1,13 +1,31 @@
 use std::str::FromStr;
 
+// Kinds of things which can be returned by querying a gopher hole.
+// Will be fleshed out more as I implement features.
 #[derive(PartialEq,Debug)]
-pub struct GopherHole {
+pub enum LinkType {
+    File,
+    Folder,
+}
+
+#[derive(PartialEq,Debug)]
+pub struct Link {
     pub url: String,
     pub port: u64,
     pub selector: String,
+    pub what: LinkType,
 }
 
-impl GopherHole {
+impl Link {
+    pub fn new(url: String, port: u64) -> Link {
+        Link {
+            url: url,
+            port: port,
+            selector: String::new(),
+            what: LinkType::Folder,
+        }
+    }
+
     // This method needs to return a Result to be used with
     // `map_res` in a nom parser
     pub fn to_url(input: &str) -> Result<String, ()> {
@@ -24,9 +42,3 @@ impl GopherHole {
     }
 }
 
-// Kinds of things which can be returned by querying a gopher hole.
-// Will be fleshed out more as I implement features.
-pub enum Link {
-    Hole(GopherHole),
-    Text(GopherHole),
-}

@@ -11,13 +11,9 @@ fn print_usage(name: String) {
 }
 
 fn fetch_link(link: &Link) -> io::Result<String> {
-    let hole = match link {
-        Link::Hole(hole) => hole,
-        Link::Text(text) => text,
-    };
 
-    let mut stream = TcpStream::connect(hole.to_string())?;
-    stream.write(format!("{}\r\n", hole.selector).as_bytes())?;
+    let mut stream = TcpStream::connect(link.to_string())?;
+    stream.write(format!("{}\r\n", link.selector).as_bytes())?;
 
     let mut buf = Vec::new();
     stream.read_to_end(&mut buf)?;
@@ -41,7 +37,7 @@ fn main() -> io::Result<()> {
     }
 
     let raw_addr = &args[1];
-    let hole = parse_uri(&raw_addr).unwrap();
+    let gopher_hole = parse_uri(&raw_addr).unwrap();
 
-    fetch_link(&Link::Hole(hole)).map(|_| ())
+    fetch_link(&gopher_hole).map(|_| ())
 }

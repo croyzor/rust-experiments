@@ -4,6 +4,7 @@ use std::str::FromStr;
 pub struct GopherHole {
     pub url: String,
     pub port: u64,
+    pub selector: String,
 }
 
 impl GopherHole {
@@ -18,7 +19,7 @@ impl GopherHole {
         u64::from_str(input)
     }
 
-    pub fn to_string(self) -> String {
+    pub fn to_string(&self) -> String {
         format!("{}:{}", self.url, self.port)
     }
 }

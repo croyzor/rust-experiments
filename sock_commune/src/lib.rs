@@ -22,6 +22,7 @@ pub fn parse_uri(uri: &str) -> Result<GopherHole, nom::Err<&str, u32>> {
         Ok((_, (a,b))) => Ok(GopherHole {
             url: a,
             port: b,
+            selector: String::new(),
         }),
         Err(e) => Err(e)
     }

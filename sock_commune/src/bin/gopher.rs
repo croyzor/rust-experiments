@@ -35,8 +35,17 @@ mod tests {
     use sock_commune::gopher::GopherHole;
 
     #[test]
-    fn parse_args() {
+    fn parse_args_with_port() {
         assert_eq!(parse_uri("gopher://test.com:70"),
+                   Ok(GopherHole {
+                       url: "test.com".to_string(),
+                       port: 70
+                   }));
+    }
+
+    #[test]
+    fn parse_args() {
+        assert_eq!(parse_uri("gopher://test.com"),
                    Ok(GopherHole {
                        url: "test.com".to_string(),
                        port: 70

@@ -2,23 +2,26 @@
 extern crate nom;
 pub mod gopher;
 
+use nom::rest;
 use self::gopher::GopherHole;
 
-named!(_parse_uri<&str, GopherHole>,
-       do_parse!(
-           opt!(tag!("gopher://")) >>
-               // TODO: Handle addresses with no port
-               url:  map_res!(alt!(take_until!(":")
-                                   | take_until!("\n"))
-                              , GopherHole::to_url) >>
-               // TODO: Actually read the port
-               port: map_res!(value!("70"), GopherHole::to_port) >>
-               (GopherHole { url, port })));
+named!(_parse_uri<&str, (String, u64)>,
+    do_parse!(opt!(tag!("gopher://")) >>
+              res: tuple!(
+                  map_res!(alt_complete!(take_until!(":") |
+                                         rest),
+                           GopherHole::to_url),
+                  // TODO: Read the port, if `take_until(":")` succeeds
+                  map_res!(value!("70"),
+                           GopherHole::to_port)) >>
+              (res)));
 
-// TODO: Terrible error type!
-pub fn parse_uri(uri: &str) -> Result<GopherHole, ()> {
+pub fn parse_uri(uri: &str) -> Result<GopherHole, nom::Err<&str, u32>> {
     match _parse_uri(uri) {
-        Ok((_, hole)) => Ok(hole),
-        Err(_) => Err(()),
+        Ok((_, (a,b))) => Ok(GopherHole {
+            url: a,
+            port: b,
+        }),
+        Err(e) => Err(e)
     }
 }

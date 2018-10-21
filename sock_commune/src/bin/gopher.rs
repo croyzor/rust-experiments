@@ -7,7 +7,6 @@ fn print_usage(name: String) {
     println!("\t{} <DESTINATION>", name);
 }
 
-
 fn main() -> std::io::Result<()> {
     let args: Vec<String> = std::env::args().collect();
     if args.len() != 2 {
@@ -27,37 +26,4 @@ fn main() -> std::io::Result<()> {
     let resp = String::from_utf8(buf).unwrap();
     println!("{}", resp);
     Ok(())
-}
-
-#[cfg(test)]
-mod tests {
-    use sock_commune::parse_uri;
-    use sock_commune::gopher::GopherHole;
-
-    #[test]
-    fn parse_args_with_port() {
-        assert_eq!(parse_uri("gopher://test.com:70"),
-                   Ok(GopherHole {
-                       url: "test.com".to_string(),
-                       port: 70
-                   }));
-    }
-
-    #[test]
-    fn parse_args_without_prefix() {
-        assert_eq!(parse_uri("test.com:70"),
-                   Ok(GopherHole {
-                       url: "test.com".to_string(),
-                       port: 70
-                   }));
-    }
-
-    #[test]
-    fn parse_args() {
-        assert_eq!(parse_uri("gopher://test.com"),
-                   Ok(GopherHole {
-                       url: "test.com".to_string(),
-                       port: 70
-                   }));
-    }
 }

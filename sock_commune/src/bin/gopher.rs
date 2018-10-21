@@ -44,6 +44,15 @@ mod tests {
     }
 
     #[test]
+    fn parse_args_without_prefix() {
+        assert_eq!(parse_uri("test.com:70"),
+                   Ok(GopherHole {
+                       url: "test.com".to_string(),
+                       port: 70
+                   }));
+    }
+
+    #[test]
     fn parse_args() {
         assert_eq!(parse_uri("gopher://test.com"),
                    Ok(GopherHole {

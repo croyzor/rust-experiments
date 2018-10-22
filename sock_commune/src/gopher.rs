@@ -4,8 +4,9 @@ use std::str::FromStr;
 // Will be fleshed out more as I implement features.
 #[derive(PartialEq,Debug)]
 pub enum LinkType {
-    File,
+    Text,
     Folder,
+    Info,
 }
 
 #[derive(PartialEq,Debug)]

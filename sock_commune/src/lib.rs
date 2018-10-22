@@ -3,7 +3,7 @@ extern crate nom;
 pub mod gopher;
 
 use nom::rest;
-use self::gopher::{Link};
+use self::gopher::*;
 
 // nom parser for uris of the format `gopher://test.com:70`
 named!(_parse_uri<&str, Link>,
@@ -18,6 +18,20 @@ named!(_parse_uri<&str, Link>,
 
 pub fn parse_uri(uri: &str) -> Result<Link, nom::Err<&str, u32>> {
     _parse_uri(uri).map(|(_, res)| res)
+}
+
+named!(parse_line_info<&str, String>,
+       do_parse!(tag!("i") >>
+                 info: rest >>
+                 (info.to_string())));
+
+fn parse_linktype(identifier: &str) -> Result<LinkType, String> {
+    match identifier {
+        "i" => Ok(LinkType::Info),
+        "1" => Ok(LinkType::Folder),
+        "0" => Ok(LinkType::Text),
+        _   => Err("Link type not implemented".to_string()),
+    }
 }
 
 #[cfg(test)]

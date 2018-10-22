@@ -11,6 +11,7 @@ pub enum LinkType {
 
 #[derive(PartialEq,Debug)]
 pub struct Link {
+    pub name: String,
     pub url: String,
     pub port: u64,
     pub selector: String,
@@ -20,6 +21,7 @@ pub struct Link {
 impl Link {
     pub fn new(url: String, port: u64) -> Link {
         Link {
+            name: String::new(),
             url: url,
             port: port,
             selector: String::new(),

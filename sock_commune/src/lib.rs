@@ -25,7 +25,30 @@ named!(parse_line_info<&str, String>,
                  info: rest >>
                  (info.to_string())));
 
-fn parse_linktype(identifier: &str) -> Result<LinkType, String> {
+named!(_parse_line_resource<&str, Link>,
+       do_parse!(
+           linktype: map_res!(take!(1), parse_link_type) >>
+               disp: take_until!("\t") >>
+               char!('\t') >>
+               selector: take_until!("\t") >>
+               char!('\t') >>
+               host: take_until!("\t") >>
+               char!('\t') >>
+               port: map_res!(rest, Link::to_port) >>
+               (Link {
+                   name: disp.to_string(),
+                   url: host.to_string(),
+                   port: port,
+                   selector: selector.to_string(),
+                   what: linktype,
+               })));
+
+pub fn parse_line_resource(line: &str) -> Result<Link,
+                                                nom::Err<&str, u32>> {
+    _parse_line_resource(line).map(|(_, res)| res)
+}
+
+fn parse_link_type(identifier: &str) -> Result<LinkType, String> {
     match identifier {
         "i" => Ok(LinkType::Info),
         "1" => Ok(LinkType::Folder),
@@ -36,7 +59,7 @@ fn parse_linktype(identifier: &str) -> Result<LinkType, String> {
 
 #[cfg(test)]
 mod tests {
-    use crate::{Link,parse_uri};
+    use crate::*;
 
     // Here are a few tests to exercise the parse_uri function, which will
     // be used to parse the url argument passed to the gopher client. It
@@ -62,5 +85,28 @@ mod tests {
         assert_eq!(parse_uri("gopher://test.com"),
                    Ok(Link::new("test.com".to_string(),
                                 70)));
+    }
+
+    #[test]
+    fn parse_type() {
+        assert_eq!(parse_link_type("1"), Ok(LinkType::Folder));
+    }
+
+    #[test]
+    fn parse_line() {
+        // From wikipedia
+        let line = format!("{}	{}	{}	{}",
+                           "1Floodgap Home",
+                           "/home",
+                           "gopher.floodgap.com",
+                           70);
+        assert_eq!(parse_line_resource(&line),
+                   Ok(Link {
+                       name: "Floodgap Home".to_string(),
+                       url: "gopher.floodgap.com".to_string(),
+                       port: 70,
+                       selector: "/home".to_string(),
+                       what: LinkType::Folder,
+                   }));
     }
 }
